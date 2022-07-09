@@ -54,7 +54,7 @@ Iobrcbr = imcomplement(Iobrcbr);
 
 
 lab_he = Iobrcbr
-ab = lab_he(:,:,2:3);
+ab = lab_he(:,:,1   :1);
 ab = im2single(ab);
 nColors = 3;
 % repeat the clustering 3 times to avoid local minima
