@@ -1,6 +1,24 @@
 
-rgb = imread('a.bmp');
-I = rgb2gray(rgb);
+function [bw] = palm(rgb)
+
+lab_he = rgb2lab(rgb)
+ab = lab_he(:,:,2:3);
+ab = im2single(ab);
+nColors = 3;
+% repeat the clustering 3 times to avoid local minima
+pixel_labels = imsegkmeans(ab,nColors,'NumAttempts',3);
+
+imshow(pixel_labels,[])
+title('Image Labeled by Cluster Index');
+waitforbuttonpress
+mask1 = pixel_labels==1;
+cluster1 = rgb .* uint8(mask1);
+imshow(cluster1)
+title('Objects in Cluster 1');
+waitforbuttonpress
+
+
+I = rgb2gray(cluster1);
 
 nexttile
 imshow(I)
@@ -20,6 +38,7 @@ Lrgb = label2rgb(L);
 nexttile
 imshow(Lrgb)
 title('Watershed Transform of Gradient Magnitude')
+
 
 se = strel('disk',20);
 Io = imopen(I,se);
@@ -51,35 +70,42 @@ title('Opening-Closing')
 Iobrd = imdilate(Iobr,se);
 Iobrcbr = imreconstruct(imcomplement(Iobrd),imcomplement(Iobr));
 Iobrcbr = imcomplement(Iobrcbr);
+nexttile
+imshow(Iobrcbr)
+title('Opening-Closing by Reconstruction')
 
 
-lab_he = Iobrcbr
-ab = lab_he(:,:,1   :1);
-ab = im2single(ab);
-nColors = 3;
-% repeat the clustering 3 times to avoid local minima
-pixel_labels = imsegkmeans(ab,nColors,'NumAttempts',3);
+fgm = imregionalmax(Iobrcbr);
+nexttile
+imshow(fgm)
+title('Regional Maxima of Opening-Closing by Reconstruction')
 
-mask1 = pixel_labels==1;
-cluster1 = he .* uint8(mask1);
 
-X= rgb2gray(cluster1)
-BW = false(size(X,1),size(X,2));
+I2 = labeloverlay(I,fgm);
+nexttile
+imshow(I2)
+title('Regional Maxima Superimposed on Original Image')
 
-% 泛洪填充
-row = 101;
-column = 189;
-tolerance = 12;
-addedRegion = grayconnected(X, row, column, tolerance);
-BW = BW | addedRegion;
 
-% 使用 diamond 执行掩膜开运算
-radius = 20;
-se = strel('diamond', radius);
-BW = imopen(BW, se);
+se2 = strel(ones(5,5));
+fgm2 = imclose(fgm,se2);
+fgm3 = imerode(fgm2,se2);
 
-% Create masked image.
-maskedImage = X;
-maskedImage(~BW) = 0;
+fgm4 = bwareaopen(fgm3,20);
+I3 = labeloverlay(I,fgm4);
+nexttile
+imshow(I3)
+title('Modified Regional Maxima Superimposed on Original Image')
 
-imshow(maskedImage)
+bw = imbinarize(Iobrcbr);
+nexttile
+imshow(bw)
+title('Thresholded Opening-Closing by Reconstruction')
+
+bw = imcomplement(bw);
+radius = 33;
+decomposition = 8;
+se = strel('disk', radius, decomposition);
+bw = imopen(bw, se);
+
+end
