@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Load image
-image = cv2.imread('matlab/opening-closing.png', 0)
+image = cv2.imread('matlab/a.bmp', 0)
 
 # Set our filtering parameters
 # Initialize parameter setting using cv2.SimpleBlobDetector
@@ -45,3 +45,4 @@ cv2.imshow("Filtering Circular Blobs Only", blobs)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
+exit()

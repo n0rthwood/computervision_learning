@@ -1,4 +1,4 @@
-srcPath="zebraimg/"
+srcPath="fardimg/"
 imagefiles = dir(strcat(srcPath,'*.bmp'));      
 nfiles = length(imagefiles);    % Number of files found
 for ii=1:nfiles
@@ -6,8 +6,9 @@ for ii=1:nfiles
    path =strcat( srcPath,currentfilename);
    currentimage = imread(path);
 
-   mask = palm(currentimage)
-   result = imfuse(currentimage,imresize(mask,10),'blend')
+   mask = palm(imresize(currentimage,0.5))
+   figure
+   result = imfuse(currentimage,imresize(mask,2),'blend')
    imshow(result)
    waitforbuttonpress
 end

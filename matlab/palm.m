@@ -1,21 +1,24 @@
 
 function [bw] = palm(rgb)
-
 lab_he = rgb2lab(rgb)
 ab = lab_he(:,:,2:3);
 ab = im2single(ab);
-nColors = 3;
+nColors = 2;
 % repeat the clustering 3 times to avoid local minima
-pixel_labels = imsegkmeans(ab,nColors,'NumAttempts',3);
+pixel_labels = imsegkmeans(ab,nColors,'NumAttempts',1);
+
 
 imshow(pixel_labels,[])
 title('Image Labeled by Cluster Index');
-waitforbuttonpress
+
+
 mask1 = pixel_labels==1;
 cluster1 = rgb .* uint8(mask1);
+
+nexttile
 imshow(cluster1)
 title('Objects in Cluster 1');
-waitforbuttonpress
+
 
 
 I = rgb2gray(cluster1);
