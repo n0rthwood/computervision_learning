@@ -1,0 +1,19 @@
+I=imread("matlab/a.bmp")
+labI=rgb2lab(I)
+ab = labI(:,:,2:3);
+ab = im2single(ab);
+pixel_labels = imsegkmeans(ab,2,'NumAttempts',1);
+
+
+gmag = imgradient(pixel_labels);
+
+
+
+se = strel('disk',20);
+Io = imopen(gmag,se);
+
+Ie = imerode(gmag,se);
+Iobr = imreconstruct(Ie,gmag);
+
+
+imshow(Iobr,[])
