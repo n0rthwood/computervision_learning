@@ -88,3 +88,7 @@ yaml=0.2.5=haf1e3a3_0
 zfp=0.5.5=he9d5cce_6
 zlib=1.2.12=h4dc903c_2
 zstd=1.4.9=h322a384_0
+
+opencv-python~=4.6.0.66
+numpy~=1.23.1
+scikit-learn~=1.0.2

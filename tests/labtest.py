@@ -3,7 +3,7 @@ import cv2
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
-image = cv2.imread('matlab/cc.bmp')
+image = cv2.imread('../matlab/cc.bmp')
 
 plt.figure()
 # plt.imshow(image)

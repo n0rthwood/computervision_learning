@@ -6,7 +6,7 @@
 % imshowpair(I,mask,"blend")
 clc;clear
 
-oI=imread("matlab/c.bmp");
+oI=imread("matlab/fullcategory.png");
 
 ycbcrMk=yCbCrMask(oI)
 hsvMK=hsvMask(oI)
