@@ -5,34 +5,47 @@
 % mask=morph(grayI)
 % imshowpair(I,mask,"blend")
 clc;clear
-
+figure
 oI=imread("matlab/fullcategory.png");
 
 ycbcrMk=yCbCrMask(oI)
 hsvMK=hsvMask(oI)
 rgbMK=rgbMask(oI)
+labMK=labMask(oI)
 nexttile
-title("ycbcr")
+
 
 imshow(ycbcrMk,[])
-
+title("ycbcr")
 nexttile
 
-title("hsvMK")
+
 imshow(hsvMK,[])
+title("hsvMK")
 nexttile
 
-title("rgbMK")
+
+imshow(labMK,[])
+title("labMask")
+nexttile
+
+
 imshow(rgbMK,[])
+title("rgbMK")
 nexttile
 ychsFuse=imfuse(ycbcrMk,hsvMK,"blend")
-fullFuse=imfuse(ychsFuse,rgbMK,"blend")
-imshow(ychsFuse)
+fullFuse=imfuse(ychsFuse,labMK,"blend")
 nexttile
 imshow(fullFuse)
+title("fullFuse")
+
 final=morph2(fullFuse)
+imshow(final,[])
+title("final")
+
 nexttile
 imshowpair(oI,final,"blend")
+
 
 % labI=rgb2lab(I)
 % ab = labI(:,:,2:3);

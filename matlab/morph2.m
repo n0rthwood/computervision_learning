@@ -1,4 +1,4 @@
-function [BW,maskedImage] = morph2(X)
+function [BW] = morph2(X)
 %segmentImage Segment image using auto-generated code from imageSegmenter app
 %  [BW,MASKEDIMAGE] = segmentImage(X) segments image X using auto-generated
 %  code from the imageSegmenter app. The final segmentation is returned in
@@ -30,7 +30,7 @@ se = strel('disk', radius, decomposition);
 BW = imdilate(BW, se);
 
 % 使用 disk 执行掩膜开运算
-radius = 36;
+radius = 30;
 decomposition = 8;
 se = strel('disk', radius, decomposition);
 BW = imopen(BW, se);
@@ -38,8 +38,5 @@ BW = imopen(BW, se);
 % 填充孔
 BW = imfill(BW, 'holes');
 
-% Create masked image.
-maskedImage = X;
-maskedImage(~BW) = 0;
 end
 
