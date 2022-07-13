@@ -30,7 +30,7 @@ se = strel('disk', radius, decomposition);
 BW = imdilate(BW, se);
 
 % 使用 disk 执行掩膜开运算
-radius = 30;
+radius = 24;
 decomposition = 8;
 se = strel('disk', radius, decomposition);
 BW = imopen(BW, se);

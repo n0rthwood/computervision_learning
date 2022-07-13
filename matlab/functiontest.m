@@ -4,48 +4,50 @@
 % grayI=rgb2gray(I1)
 % mask=morph(grayI)
 % imshowpair(I,mask,"blend")
-clc;clear
-figure
-oI=imread("matlab/fullcategory.png");
-
-ycbcrMk=yCbCrMask(oI)
-hsvMK=hsvMask(oI)
-rgbMK=rgbMask(oI)
-labMK=labMask(oI)
-nexttile
-
-
-imshow(ycbcrMk,[])
-title("ycbcr")
-nexttile
-
-
-imshow(hsvMK,[])
-title("hsvMK")
-nexttile
-
-
-imshow(labMK,[])
-title("labMask")
-nexttile
-
-
-imshow(rgbMK,[])
-title("rgbMK")
-nexttile
-ychsFuse=imfuse(ycbcrMk,hsvMK,"blend")
-fullFuse=imfuse(ychsFuse,labMK,"blend")
-nexttile
-imshow(fullFuse)
-title("fullFuse")
-
-final=morph2(fullFuse)
-imshow(final,[])
-title("final")
-
-nexttile
-imshowpair(oI,final,"blend")
-
+% clc;clear
+% figure
+% filename="../testbmp/cc7.bmp"
+% oI=imread(filename);
+% 
+% ycbcrMk=yCbCrMask(oI)
+% hsvMK=hsvMask(oI)
+% rgbMK=rgbMask(oI)
+% labMK=labMask(oI)
+% nexttile
+% 
+% 
+% imshow(ycbcrMk,[])
+% title("ycbcr")
+% nexttile
+% 
+% 
+% imshow(hsvMK,[])
+% title("hsvMK")
+% nexttile
+% 
+% 
+% imshow(labMK,[])
+% title("labMask")
+% nexttile
+% 
+% 
+% imshow(rgbMK,[])
+% title("rgbMK")
+% nexttile
+% ychsFuse=imfuse(ycbcrMk,hsvMK,"blend")
+% fullFuse=imfuse(ychsFuse,labMK,"blend")
+% nexttile
+% imshow(fullFuse)
+% title("fullFuse")
+% 
+% final=morph2(fullFuse)
+% imshow(final,[])
+% title("final")
+% 
+% nexttile
+% imshowpair(oI,final,"blend")
+% Filename = sprintf('tmp/%s.bmp', datestr(now,'mm-dd-yyyy HH-MM-SS'));
+% imwrite(imfuse(oI,final,"blend"),Filename)
 
 % labI=rgb2lab(I)
 % ab = labI(:,:,2:3);
