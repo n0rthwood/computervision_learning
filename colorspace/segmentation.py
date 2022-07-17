@@ -17,7 +17,7 @@ def color_threshold_mask_image(image,colorspace_transform_code, lower_color, upp
     mask = cv2.inRange(converted, lower_color, upper_color)
     return mask
 
-image = cv2.imread('cc11.bmp',1)
+image = cv2.imread('fd1.bmp',1)
 start_time = datetime.now()
 image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
 
@@ -48,34 +48,34 @@ mask_out=cv2.subtract(src1_mask,image)
 mask_out=cv2.subtract(src1_mask,mask_out)
 
 
-# f, ax = plt.subplots(2,4)
-#
-# axarr=ax.flat
-# # overlay image with mask
-# axarr[0].imshow(hsvmask)
-# title_obj = axarr[0].set_title('hsv_masked_image')  # get the title property handler
-#
-# axarr[1].imshow(labmask)
-# title_obj = axarr[1].set_title('lab_masked_image')  # get the title property handler
-#
-# axarr[2].imshow(ycbrcmask)
-# title_obj = axarr[2].set_title('ycbrc_masked_image')  # get the title property handler
-#
-# axarr[3].imshow(mergedMask)
-# title_obj = axarr[3].set_title('merged_masked_image')  # get the title property handler
-#
-# axarr[4].imshow(mmorphed_mk)
-# title_obj = axarr[4].set_title('_MORPH_CLOSE_')  # get the title property handler
-#
-# axarr[5].imshow(mmorphed_mk)
-# title_obj = axarr[5].set_title('_MORPH_OPEN')  # get the title property handler
-#
-# axarr[6].imshow(image)
-# title_obj = axarr[6].set_title('original')  # get the title property handler
-#
-# axarr[7].imshow(gray_final)
-# title_obj = axarr[7].set_title('final')  # get the title property handler
-# plt.show()
+f, ax = plt.subplots(2,4)
+
+axarr=ax.flat
+# overlay image with mask
+axarr[0].imshow(hsvmask)
+title_obj = axarr[0].set_title('hsv_masked_image')  # get the title property handler
+
+axarr[1].imshow(labmask)
+title_obj = axarr[1].set_title('lab_masked_image')  # get the title property handler
+
+axarr[2].imshow(ycbrcmask)
+title_obj = axarr[2].set_title('ycbrc_masked_image')  # get the title property handler
+
+axarr[3].imshow(mergedMask)
+title_obj = axarr[3].set_title('merged_masked_image')  # get the title property handler
+
+axarr[4].imshow(mmorphed_mk)
+title_obj = axarr[4].set_title('_MORPH_CLOSE_')  # get the title property handler
+
+axarr[5].imshow(mmorphed_mk)
+title_obj = axarr[5].set_title('_MORPH_OPEN')  # get the title property handler
+
+axarr[6].imshow(image)
+title_obj = axarr[6].set_title('original')  # get the title property handler
+
+axarr[7].imshow(final)
+title_obj = axarr[7].set_title('final')  # get the title property handler
+plt.show()
 
 correct_color=image
 
