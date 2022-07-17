@@ -19,7 +19,7 @@ pip install -r requirements.txt
 运行程序
 
 ```bash
-python segmentation.py
+python test.py
 ```
 
 修改代码里面的图片路径尝试不同效果
