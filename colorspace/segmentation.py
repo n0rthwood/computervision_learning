@@ -17,7 +17,7 @@ def color_threshold_mask_image(image,colorspace_transform_code, lower_color, upp
     mask = cv2.inRange(converted, lower_color, upper_color)
     return mask
 
-image = cv2.imread('fullcategory.png',1)
+image = cv2.imread('cc11.bmp',1)
 start_time = datetime.now()
 image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
 
@@ -95,6 +95,13 @@ for i in range(grid[0]):
     for j in range(grid[1]):
         sliced_img = correct_color[i*grid_h:(i+1)*grid_h,j*grid_w:(j+1)*grid_w];
         sliced_mask=mmorphed_mk[i*grid_h:(i+1)*grid_h,j*grid_w:(j+1)*grid_w];
+        if(i==3 and j==5):
+            sliced_img_s=cv2.cvtColor(sliced_img,cv2.COLOR_BGR2RGB)
+            sliced_mask_s=cv2.cvtColor(sliced_mask,cv2.COLOR_GRAY2BGR)
+            sliced_img_masked_s=cv2.add(sliced_img_s,sliced_mask_s)
+            cv2.imwrite('sliced_img.png',sliced_img_s)
+            cv2.imwrite('sliced_mask.png',sliced_mask_s)
+            cv2.imwrite('sliced_img_masked.png',sliced_img_masked_s)
 
         # dist = cv2.distanceTransform(sliced_mask, cv2.DIST_L2, 3)
         # ret, dist1 = cv2.threshold(dist, 0.6 * dist.max(), 255, 0)

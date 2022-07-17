@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
 from colorspace import colorConstant
-
+from features import double
 plt.rcParams['figure.figsize'] = (20, 10)
 plt.rcParams['figure.dpi'] = 300
 
@@ -15,16 +15,19 @@ def color_threshold_mask_image(image,colorspace_transform_code, lower_color, upp
     mask = cv2.inRange(converted, lower_color, upper_color)
     return mask
 
-image = cv2.imread('ap1.bmp',1)
+image = cv2.imread('../testbmp/ap1.bmp',1)
 start_time = datetime.now()
 image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
 
-#hsvmask = hsv_color_threshold_mask_image(image, (0.000*180, 0.000*255, 0.000), (1.000 * 180, 0.224 * 255, 1.000 * 255))
+end_time = datetime.now()
+print('Duration: {}'.format(end_time - start_time))
+
+
 hsvmask = color_threshold_mask_image(image,cv2.COLOR_RGB2HSV, colorConstant.GENERAL_THRESHOLD[0][0], colorConstant.GENERAL_THRESHOLD[0][1])
 labmask = color_threshold_mask_image(image,cv2.COLOR_RGB2Lab, colorConstant.GENERAL_THRESHOLD[1][0], colorConstant.GENERAL_THRESHOLD[1][1])
 ycbrcmask = color_threshold_mask_image(image, cv2.COLOR_RGB2YCrCb,colorConstant.GENERAL_THRESHOLD[2][0], colorConstant.GENERAL_THRESHOLD[2][1])
 
-mergedMask = np.zeros(image.shape[:2], dtype="uint8")
+#mergedMask = np.zeros(image.shape[:2], dtype="uint8")
 mergedMask = cv2.bitwise_or(hsvmask, labmask)
 mergedMask = cv2.bitwise_or(mergedMask, ycbrcmask)
 
@@ -46,34 +49,34 @@ mask_out=cv2.subtract(src1_mask,image)
 mask_out=cv2.subtract(src1_mask,mask_out)
 
 
-# f, ax = plt.subplots(2,4)
-#
-# axarr=ax.flat
-# # overlay image with mask
-# axarr[0].imshow(hsvmask)
-# title_obj = axarr[0].set_title('hsv_masked_image')  # get the title property handler
-#
-# axarr[1].imshow(labmask)
-# title_obj = axarr[1].set_title('lab_masked_image')  # get the title property handler
-#
-# axarr[2].imshow(ycbrcmask)
-# title_obj = axarr[2].set_title('ycbrc_masked_image')  # get the title property handler
-#
-# axarr[3].imshow(mergedMask)
-# title_obj = axarr[3].set_title('merged_masked_image')  # get the title property handler
-#
-# axarr[4].imshow(mmorphed_mk)
-# title_obj = axarr[4].set_title('_MORPH_CLOSE_')  # get the title property handler
-#
-# axarr[5].imshow(mmorphed_mk)
-# title_obj = axarr[5].set_title('_MORPH_OPEN')  # get the title property handler
-#
-# axarr[6].imshow(image)
-# title_obj = axarr[6].set_title('original')  # get the title property handler
-#
-# axarr[7].imshow(gray_final)
-# title_obj = axarr[7].set_title('final')  # get the title property handler
-# plt.show()
+f, ax = plt.subplots(2,4)
+
+axarr=ax.flat
+# overlay image with mask
+axarr[0].imshow(hsvmask)
+title_obj = axarr[0].set_title('hsv_masked_image')  # get the title property handler
+
+axarr[1].imshow(labmask)
+title_obj = axarr[1].set_title('lab_masked_image')  # get the title property handler
+
+axarr[2].imshow(ycbrcmask)
+title_obj = axarr[2].set_title('ycbrc_masked_image')  # get the title property handler
+
+axarr[3].imshow(mergedMask)
+title_obj = axarr[3].set_title('merged_masked_image')  # get the title property handler
+
+axarr[4].imshow(mmorphed_mk)
+title_obj = axarr[4].set_title('_MORPH_CLOSE_')  # get the title property handler
+
+axarr[5].imshow(mmorphed_mk)
+title_obj = axarr[5].set_title('_MORPH_OPEN')  # get the title property handler
+
+axarr[6].imshow(image)
+title_obj = axarr[6].set_title('original')  # get the title property handler
+
+axarr[7].imshow(gray_final)
+title_obj = axarr[7].set_title('final')  # get the title property handler
+plt.show()
 
 correct_color=image
 
@@ -93,33 +96,18 @@ for i in range(grid[0]):
     for j in range(grid[1]):
         sliced_img = correct_color[i*grid_h:(i+1)*grid_h,j*grid_w:(j+1)*grid_w];
         sliced_mask=mmorphed_mk[i*grid_h:(i+1)*grid_h,j*grid_w:(j+1)*grid_w];
+        double_check_mask= cv2.cvtColor(sliced_mask,cv2.COLOR_GRAY2RGB);
 
-        # dist = cv2.distanceTransform(sliced_mask, cv2.DIST_L2, 3)
-        # ret, dist1 = cv2.threshold(dist, 0.6 * dist.max(), 255, 0)
-        # markers = np.zeros(dist.shape, dtype=np.int32)
-        # dist_8u = dist1.astype('uint8')
-        # contours_wd, _ = cv2.findContours(dist_8u, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        # for ii in range(len(contours_wd)):
-        #     cv2.drawContours(markers, contours_wd, ii, (ii + 1), -1)
-        #
-        # markers = cv2.circle(markers, (15, 15), 5, len(contours_wd) + 1, -1)
-        #
-        # # watershed
-        #
-        # waterden_marker = cv2.watershed(sliced_img, cv2.bitwise_not(markers))
-        # sliced_img[waterden_marker == -1] = [255, 160, 0]
 
         contours, hierarchy = cv2.findContours(sliced_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(sliced_img, contours, -1, (255, 0, 0), 3)
-        # markers = np.zeros(dist.shape, dtype=np.int32)
-        # cv2.drawContours(markers, contours, i, (i + 1), -1)
-        # for i in range(len(contours)):
-        #     cv2.drawContours(markers, contours, i, (i + 1), -1)
+
 
 
 
 
         if len(contours) != 0:
+            double_count,thresh,opening,sure_bg,dist_transform,sure_fg,unknown_area,markers = double.check_double(double_check_mask)
             c = max(contours, key=cv2.contourArea,default=0)
             left = tuple(c[c[:, :, 0].argmin()][0])
             right = tuple(c[c[:, :, 0].argmax()][0])
@@ -139,7 +127,7 @@ for i in range(grid[0]):
 
             h,w,ccoo = sliced_img.shape
             cv2.rectangle(sliced_img, (left[0],top[1]), (right[0],bottom[1]), (255, 0, 0), 2)
-            cv2.putText(sliced_img, 'w:'+str(right[0]-left[0])+' h:'+str(bottom[1]-top[1])+' c[0-255]:'+str(round(YCrCb_mean[0])), (2,h-5), cv2.FONT_HERSHEY_SIMPLEX,
+            cv2.putText(sliced_img, 'w:'+str(right[0]-left[0])+' h:'+str(bottom[1]-top[1])+' c[0-255]:'+str(round(YCrCb_mean[0])) +' d:'+str(double_count), (2,h-5), cv2.FONT_HERSHEY_SIMPLEX,
                         0.5, (255, 0, 0), 1, cv2.LINE_AA)
         grid_images.append(sliced_img)
         axarr[pltindex].imshow(sliced_img)
