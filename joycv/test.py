@@ -26,12 +26,16 @@ print('Image count {}'.format(len(images)))
 
 sliced_image_list,sliced_mask_list =  io.slice_by_grid_batch(images,morphed_masks,slice_grid_row_column=[4,6])
 for i in range(len(sliced_image_list)):
+   sliced_images = sliced_image_list[i];
+   sliced_masks = sliced_mask_list[i];
 
    plt.figure()
    f, ax = plt.subplots(4, 6)
    axarr = ax.flat
    pltindex = 0
-   for(sliced_image,sliced_mask) in zip(sliced_image_list[i],sliced_mask_list[i]):
+   for j in range(len(sliced_images)):
+      sliced_image = sliced_images[j];
+      sliced_mask = sliced_masks[j];
       contours =  basic.find_contours(sliced_mask)
       exist = basic.find_existance(contours)
       if(exist):

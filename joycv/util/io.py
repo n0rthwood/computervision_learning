@@ -28,6 +28,8 @@ def load_image_from_folder(image_folder='./', process_while_loading=True, filena
 
 
 def slice_by_grid(image,mask, slice_grid_row_column=[4,6]):
+        sliced_images = []
+        sliced_masks = []
         h, w, _ = image.shape
         grid_h = h // slice_grid_row_column[0]
         grid_w = w // slice_grid_row_column[1]
@@ -35,7 +37,9 @@ def slice_by_grid(image,mask, slice_grid_row_column=[4,6]):
             for j in range(slice_grid_row_column[1]):
                 sliced_image = image[i*grid_h:(i+1)*grid_h,j*grid_w:(j+1)*grid_w]
                 sliced_mask =  mask[i*grid_h:(i+1)*grid_h,j*grid_w:(j+1)*grid_w]
-        return sliced_image,sliced_mask
+                sliced_images.append(sliced_image)
+                sliced_masks.append(sliced_mask)
+        return sliced_images,sliced_masks
 
 
 def slice_by_grid_batch(image_list,mask_list, slice_grid_row_column=[4,6]):
@@ -44,7 +48,7 @@ def slice_by_grid_batch(image_list,mask_list, slice_grid_row_column=[4,6]):
     for im in range(0, len(image_list)):
         image = image_list[im]
         mask = mask_list[im]
-        sliced_image,sliced_mask =slice_by_grid(image,mask, slice_grid_row_column)
-        image_list_sliced.append(sliced_image)
-        mask_list_sliced.append(sliced_mask)
+        sliced_images,sliced_masks =slice_by_grid(image,mask, slice_grid_row_column)
+        image_list_sliced.append(sliced_images)
+        mask_list_sliced.append(sliced_masks)
     return image_list_sliced, mask_list_sliced
