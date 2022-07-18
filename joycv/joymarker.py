@@ -46,8 +46,15 @@ for i in range(len(sliced_image_list)):
          #sliced_mask_channel_expanded= cv2.cvtColor(sliced_mask,cv2.COLOR_GRAY2RGB)
          double_count = basic.find_double(sliced_mask)
          debug_label=basic.draw_debug_info(sliced_image,contour_max,left,right,top,bottom,width,height,color,double_count)
+      even_num_j = j%2
+      if(even_num_j == 0):
+         end_line_return ='\n'
+         start_line_return =''
+      else:
+         start_line_return ='\n'
+         end_line_return =''
       axarr[pltindex].imshow(sliced_image)
-      axarr[pltindex].set_title(str(j//6)+'-'+str(j%6)+'\n'+debug_label,fontsize=10)
+      axarr[pltindex].set_title(str(j//6)+'-'+str(j%6)+start_line_return+'\n'+debug_label+end_line_return,fontsize=10)
       axarr[pltindex].axis('off')
       pltindex += 1
    plt.show()
