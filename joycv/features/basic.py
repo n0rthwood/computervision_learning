@@ -40,10 +40,11 @@ def draw_debug_info(sliced_img,contour_max,left,right,top,bottom,width,height,YC
     cv2.circle(sliced_img, bottom, 8, (255, 255, 0), -1)
     h, w, ccoo = sliced_img.shape
     cv2.rectangle(sliced_img, (left[0], top[1]), (right[0], bottom[1]), (255, 0, 0), 2)
-    label = 'w:' + str(width) \
+    debug_label = 'w:' + str(width) \
             + ' h:' + str(height) \
             + ' c:' + str(round(YCrCb_mean[0])) \
             + ' d:' + str(double_count)
 
-    cv2.putText(sliced_img, label, (2, h - 5), cv2.FONT_HERSHEY_SIMPLEX,
+    cv2.putText(sliced_img, debug_label, (2, h - 5), cv2.FONT_HERSHEY_SIMPLEX,
                 0.5, (255, 0, 0), 1, cv2.LINE_AA)
+    return debug_label

@@ -3,7 +3,8 @@ import cv2 as cv
 from matplotlib import pyplot as plt
 
 def check_double(img_mask):
-    gray = cv.cvtColor(img_mask, cv.COLOR_BGR2GRAY)
+    img_mask_3channel = cv.cvtColor(img_mask, cv.COLOR_GRAY2RGB)
+    gray = img_mask
     ret, thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)
     thresh = cv.bitwise_not(thresh)
 
@@ -27,7 +28,7 @@ def check_double(img_mask):
     # Now, mark the region of unknown with zero
     markers[unknown_area == 255] = 0
 
-    markers = cv.watershed(img_mask, markers)
+    markers = cv.watershed(img_mask_3channel, markers)
     ws = len(np.unique(markers)) - 1
 
 

@@ -8,10 +8,10 @@ from util import io
 from morph import morph
 from joycv.features import basic
 
-plt.rcParams['figure.figsize'] = (10, 10)
+plt.rcParams['figure.figsize'] = (15, 10)
 plt.rcParams['figure.dpi'] = 100
 
-images,masks = io.load_image_from_folder('../testbmp/',True, '*')
+images,masks,image_names_list = io.load_image_from_folder('../testbmp/',True, '*')
 start_time = datetime.now()
 
 # create a morphed mask list same size as images
@@ -31,6 +31,7 @@ for i in range(len(sliced_image_list)):
 
    plt.figure()
    f, ax = plt.subplots(4, 6)
+   f.suptitle(image_names_list[i],fontsize=30)
    axarr = ax.flat
    pltindex = 0
    for j in range(len(sliced_images)):
@@ -38,12 +39,15 @@ for i in range(len(sliced_image_list)):
       sliced_mask = sliced_masks[j];
       contours =  basic.find_contours(sliced_mask)
       exist = basic.find_existance(contours)
+      debug_label='';
       if(exist):
          width, height, rect,contour_max,left,right,top,bottom = basic.find_size(contours)
          color = basic.find_color(sliced_image,sliced_mask)
+         #sliced_mask_channel_expanded= cv2.cvtColor(sliced_mask,cv2.COLOR_GRAY2RGB)
          double_count = basic.find_double(sliced_mask)
-         basic.draw_debug_info(sliced_image,contour_max,left,right,top,bottom,width,height,color,double_count)
+         debug_label=basic.draw_debug_info(sliced_image,contour_max,left,right,top,bottom,width,height,color,double_count)
       axarr[pltindex].imshow(sliced_image)
+      axarr[pltindex].set_title(str(j//6)+'-'+str(j%6)+'\n'+debug_label,fontsize=10)
       axarr[pltindex].axis('off')
       pltindex += 1
    plt.show()

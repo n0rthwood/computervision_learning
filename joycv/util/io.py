@@ -7,6 +7,7 @@ from joycv.colorspace import segment
 def load_image_from_folder(image_folder='./', process_while_loading=True, filename_filter="*",
                            extention=('.bmp', '.png'), cvtColor_code=cv2.COLOR_BGR2RGB):
     files = os.listdir(image_folder)
+    image_names_list = [];
     image_list = []
     mask_list = []
     files = fnmatch.filter(files, filename_filter)
@@ -18,10 +19,11 @@ def load_image_from_folder(image_folder='./', process_while_loading=True, filena
             if process_while_loading:
                 masks = segment.threshold_by_colorspace(image)
                 mask_list.append(segment.merge_mask_bitwise_or(masks))
+                image_names_list.append(file)
         else:
             continue
 
-    return image_list, mask_list
+    return image_list, mask_list,image_names_list
 
 
 
