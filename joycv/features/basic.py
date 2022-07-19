@@ -35,7 +35,12 @@ def find_double_skiimage(image,draw_debug=False):
     count,subfig  =  check_double_skiimage(image,draw_debug)
     return count,subfig
 
-def draw_debug_info(sliced_img,contour_max,left,right,top,bottom,width,height,YCrCb_mean,double_count):
+def draw_debug_info(sliced_img,contour_max,left,right,top,bottom,width,height,YCrCb_mean,double_count,draw_debug=False):
+    debug_label = 'w:' + str(width) \
+                  + ' h:' + str(height) \
+                  + ' c:' + str(round(YCrCb_mean[0])) \
+                  + ' d:' + str(double_count)
+
     cv2.drawContours(sliced_img, [contour_max], -1, (36, 255, 12), 2)
     cv2.circle(sliced_img, left, 8, (0, 50, 255), -1)
     cv2.circle(sliced_img, right, 8, (0, 255, 255), -1)
@@ -43,11 +48,9 @@ def draw_debug_info(sliced_img,contour_max,left,right,top,bottom,width,height,YC
     cv2.circle(sliced_img, bottom, 8, (255, 255, 0), -1)
     h, w, ccoo = sliced_img.shape
     cv2.rectangle(sliced_img, (left[0], top[1]), (right[0], bottom[1]), (255, 0, 0), 2)
-    debug_label = 'w:' + str(width) \
-            + ' h:' + str(height) \
-            + ' c:' + str(round(YCrCb_mean[0])) \
-            + ' d:' + str(double_count)
-
-    cv2.putText(sliced_img, debug_label, (2, h - 5), cv2.FONT_HERSHEY_SIMPLEX,
-                0.5, (255, 0, 0), 1, cv2.LINE_AA)
+    #cv2.putText(sliced_img, debug_label, (2, h - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 1, cv2.LINE_AA)
     return debug_label
+
+def extract_img(image,mask):
+    img_mask = cv2.bitwise_and(image, image, mask=mask)
+    return img_mask

@@ -5,11 +5,15 @@ import cv2
 from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 
-image = np.load('/var/folders/jd/lb66sbsn2zqdtfrp2ng2xkn80000gn/T/joycv_tmp/fd1_sliced_mask_1_2.npy')
+
+image = cv2.imread('/var/folders/1v/scs78_j96pd1shbpfsdmm1rw0000gn/T/joycv_tmp/cc_s1_sliced_image_3_5.png')
+
+image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+#image = np.load('/var/folders/1v/scs78_j96pd1shbpfsdmm1rw0000gn/T/joycv_tmp/fd3_sliced_mask_2_1.npy')
 # Now we want to separate the two objects in image
 # Generate the markers as local maxima of the distance to the background
 distance = ndi.distance_transform_edt(image)
-coords = peak_local_max(distance, footprint=np.ones((50, 50)), labels=image)
+coords = peak_local_max(distance, footprint=np.ones((5, 5)), labels=image)
 mask = np.zeros(distance.shape, dtype=bool)
 mask[tuple(coords.T)] = True
 markers, _ = ndi.label(mask)

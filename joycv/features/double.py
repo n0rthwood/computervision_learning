@@ -7,16 +7,18 @@ from skimage.feature import peak_local_max
 import joycv.config as config
 from joycv.morph import morph
 print('temp_path: '+config.temp_path)
-
+# for watershed , check http://bebi103.caltech.edu.s3-website-us-east-1.amazonaws.com/2015/tutorials/r8_watershed_transform.html very good tutorial
 def check_double_skiimage(image,debug=False):
     #image = cv.cvtColor(image, cv.COLOR_RGB2GRAY)
-    kernel = np.ones((30, 30), np.uint8)
-    image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel, iterations=2)
+    oI = image.copy()
+    kernel = np.ones((10, 10), np.uint8)
+    image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel, iterations=4)# this is to remove noise on the border of the image when object crossed the board left with a small part.
 
-    #morph.open_and_close(image, 35, 28)
 
+    distance_kernel = np.ones((20, 20), np.uint8)
     distance = ndi.distance_transform_edt(image)
-    coords = peak_local_max(distance, footprint=np.ones((55, 55)), labels=image)
+    #footprint and min_distance are important parameters for watershed. min_distance is set to the smallest date width. if object smaller than this, double won't be reliable. abc
+    coords = peak_local_max(distance, footprint=np.ones((10, 90)),min_distance=70, labels=image)
     mask = np.zeros(distance.shape, dtype=bool)
     mask[tuple(coords.T)] = True
     markers, _ = ndi.label(mask)
@@ -25,24 +27,27 @@ def check_double_skiimage(image,debug=False):
     count = len(np.unique(labels)) - 1
 
     #if debug:
-    fig = draw_double_skiimage(image,distance,labels,count)
+    fig = draw_double_skiimage(oI,image,distance,markers,labels,count)
     if not debug:
         plt.close(fig)
     return count,fig
 
 
-def draw_double_skiimage(image,distance,labels,count):
+def draw_double_skiimage(oI,image,distance,markers,labels,count):
 
 
-    fig, axes = plt.subplots(ncols=3, figsize=(9, 3), sharex=True, sharey=True)
+    fig, axes = plt.subplots(ncols=5, figsize=(9, 3), sharex=True, sharey=True)
     ax = axes.ravel()
-
-    ax[0].imshow(image, cmap=plt.cm.gray)
-    ax[0].set_title('Overlapping objects')
-    ax[1].imshow(-distance, cmap=plt.cm.gray)
-    ax[1].set_title('Distances')
-    ax[2].imshow(labels, cmap=plt.cm.gray)
-    ax[2].set_title('Separated objects'+str(count))
+    ax[0].imshow(oI, cmap=plt.cm.gray)
+    ax[0].set_title('Original')
+    ax[1].imshow(image, cmap=plt.cm.gray)
+    ax[1].set_title('Overlapping objects')
+    ax[2].imshow(-distance, cmap=plt.cm.gray)
+    ax[2].set_title('Distances')
+    ax[3].imshow(markers, cmap=plt.cm.viridis)
+    ax[3].set_title('Peak local max')
+    ax[4].imshow(labels, cmap=plt.cm.gray)
+    ax[4].set_title('Separated objects'+str(count))
     for a in ax:
         a.set_axis_off()
     fig.tight_layout()
