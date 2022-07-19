@@ -1,5 +1,5 @@
 import cv2
-from joycv.features.double import check_double
+from joycv.features.double import check_double,check_double_skiimage
 
 def find_contours(sliced_mask):
     contours, hierarchy = cv2.findContours(sliced_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -31,6 +31,9 @@ def find_color(sliced_image,sliced_mask):
 def find_double(img_mask):
     count,thresh,opening,sure_bg,dist_transform,sure_fg,unknown_area,markers = check_double(img_mask)
     return count
+def find_double_skiimage(image,draw_debug=False):
+    count,subfig  =  check_double_skiimage(image,draw_debug)
+    return count,subfig
 
 def draw_debug_info(sliced_img,contour_max,left,right,top,bottom,width,height,YCrCb_mean,double_count):
     cv2.drawContours(sliced_img, [contour_max], -1, (36, 255, 12), 2)

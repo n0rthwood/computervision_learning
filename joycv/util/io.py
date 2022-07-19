@@ -1,7 +1,7 @@
 import os
 import cv2
 import fnmatch
-from joycv.colorspace import segment
+from colorspace import segment
 
 
 def load_image_from_folder(image_folder='./', process_while_loading=True, filename_filter="*",

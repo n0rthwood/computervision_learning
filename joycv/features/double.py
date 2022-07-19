@@ -1,8 +1,55 @@
 import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
+from scipy import ndimage as ndi
+from skimage.segmentation import watershed
+from skimage.feature import peak_local_max
+import joycv.config as config
+from joycv.morph import morph
+print('temp_path: '+config.temp_path)
 
-def check_double(img_mask):
+def check_double_skiimage(image,debug=False):
+    #image = cv.cvtColor(image, cv.COLOR_RGB2GRAY)
+    kernel = np.ones((30, 30), np.uint8)
+    image = cv.morphologyEx(image, cv.MORPH_OPEN, kernel, iterations=2)
+
+    #morph.open_and_close(image, 35, 28)
+
+    distance = ndi.distance_transform_edt(image)
+    coords = peak_local_max(distance, footprint=np.ones((55, 55)), labels=image)
+    mask = np.zeros(distance.shape, dtype=bool)
+    mask[tuple(coords.T)] = True
+    markers, _ = ndi.label(mask)
+
+    labels = watershed(-distance, markers, mask=image)
+    count = len(np.unique(labels)) - 1
+
+    #if debug:
+    fig = draw_double_skiimage(image,distance,labels,count)
+    if not debug:
+        plt.close(fig)
+    return count,fig
+
+
+def draw_double_skiimage(image,distance,labels,count):
+
+
+    fig, axes = plt.subplots(ncols=3, figsize=(9, 3), sharex=True, sharey=True)
+    ax = axes.ravel()
+
+    ax[0].imshow(image, cmap=plt.cm.gray)
+    ax[0].set_title('Overlapping objects')
+    ax[1].imshow(-distance, cmap=plt.cm.gray)
+    ax[1].set_title('Distances')
+    ax[2].imshow(labels, cmap=plt.cm.gray)
+    ax[2].set_title('Separated objects'+str(count))
+    for a in ax:
+        a.set_axis_off()
+    fig.tight_layout()
+    return fig
+    #plt.close(fig)
+
+def check_double(img_mask,debug=False):
     img_mask_3channel = cv.cvtColor(img_mask, cv.COLOR_GRAY2RGB)
     gray = img_mask
     ret, thresh = cv.threshold(gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)
@@ -40,16 +87,18 @@ def check_double(img_mask):
         cv.drawContours(surface, contours_wd, ii, (ii + 1), -1)
 
     count = len(contours_wd)
-    return count,thresh,opening,sure_bg,dist_transform,sure_fg,unknown_area,markers
+    fig = None
+    if debug:
+        fig = draw_double_debug(img_mask,count,thresh,opening,sure_bg,dist_transform,sure_fg,unknown_area,markers)
+    return count,thresh,opening,sure_bg,dist_transform,sure_fg,unknown_area,markers,fig
 
-def check_double_debug(img_mask):
-    count,thresh,opening,sure_bg,dist_transform,sure_fg,unknown_area,markers = check_double(img_mask)
+def draw_double_debug(img_mask,count,thresh,opening,sure_bg,dist_transform,sure_fg,unknown_area,markers):
     h, w, ccoo = img_mask.shape
     cv.putText(img_mask, 'count:' + str(count), (2, h - 7), cv.FONT_HERSHEY_SIMPLEX,
                0.7, (0, 0, 255), 1, cv.LINE_AA)
 
     img_mask[markers == -1] = [0, 0, 255]
-    plt.subplotf, ax = plt.subplots(2, 5, figsize=(20, 10))
+    f, ax = plt.subplots(2, 5, figsize=(20, 10))
     axarr = ax.flat
     axarr[0].imshow(thresh, cmap='gray')
     axarr[0].set_title('thresh')  # get the title property handler
@@ -75,5 +124,4 @@ def check_double_debug(img_mask):
     axarr[7].imshow(cv.cvtColor(img_mask, cv.COLOR_BGR2RGB))
     axarr[7].set_title('img')  # get the title property handler
     axarr[7].axis('off')
-    plt.show()
-    return count,thresh,opening,sure_bg,dist_transform,sure_fg,unknown_area,markers
+    return f

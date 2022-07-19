@@ -1,9 +1,9 @@
 import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
-img = cv.imread('sliced_img_cc1.png')
+img = cv.imread('sliced_img_fd2.png')
 
-img_mask = cv.imread('sliced_mask_cc1.png')
+img_mask = cv.imread('sliced_mask_fd2.png')
 
 gray = cv.cvtColor(img_mask,cv.COLOR_BGR2GRAY)
 ret, thresh = cv.threshold(gray,0,255,cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
@@ -17,7 +17,7 @@ sure_bg = cv.dilate(opening,kernel,iterations=3)
 
 # Finding sure foreground area
 dist_transform = cv.distanceTransform(opening,cv.DIST_L2,5)
-ret, sure_fg = cv.threshold(dist_transform,0.8*dist_transform.max(),255,0)
+ret, sure_fg = cv.threshold(dist_transform,0.889*dist_transform.max(),255,0)
 sure_fg= np.uint8(sure_fg)
 unknown = cv.subtract(sure_bg,sure_fg)
 # Finding unknown region

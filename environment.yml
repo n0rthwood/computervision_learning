@@ -1,0 +1,4 @@
+name: joycvp310
+dependencies:
+  - python=3.10
+  - numpy
