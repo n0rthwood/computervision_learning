@@ -12,7 +12,7 @@ print('temp_path: '+config.temp_path)
 plt.rcParams['figure.figsize'] = (15, 10)
 plt.rcParams['figure.dpi'] = 100
 
-images,masks,image_names_list = io.load_image_from_folder('../testbmp/',True, '*')
+images,masks,image_names_list = io.load_image_from_folder('../testbmp/',True, 'hn*')
 start_time = datetime.now()
 debug_list={};
 
@@ -24,6 +24,8 @@ debug_list = {
     "fd1.bmp":[(2,5),(1,2),(1,4)],
     "fd2.bmp":[(2,5),(3,5),(3,1),(0,2),(1,2)],
    "fd3.bmp": [(2, 1)],
+"hn1.bmp":[(1,2),(3,4),(2,3)],
+"hn_s1.bmp":[(3,1),(3,2)],
     "dd1.bmp":[(0,1)],
     "dd2.bmp":[(1,5)],
    "dd4.bmp": [(2, 5)],
@@ -83,7 +85,7 @@ for i in range(len(sliced_image_list)):
          if (debug_flag):
             np.save(config.temp_path + image_names_list[i].rsplit(".", 1)[0] + '_sliced_mask_' + str(j // 6) + '_' + str( j % 6) + '.npy', sliced_mask, allow_pickle=True)
             cv2.imwrite(config.temp_path + image_names_list[i].rsplit(".", 1)[0] + '_sliced_image_' + str(j // 6) + '_' + str( j % 6) + '.png', cv2.cvtColor(basic.extract_img(osi,sliced_mask),cv2.COLOR_BGR2RGB))
-            #subfig.savefig( config.temp_path + image_names_list[i].rsplit(".", 1)[0] + '_sliced_mask_' + str(j // 6) + '_' + str( j % 6) + '.png')
+            subfig.savefig( config.temp_path + image_names_list[i].rsplit(".", 1)[0] + '_sliced_mask_' + str(j // 6) + '_' + str( j % 6) + '.png')
             plt.close(subfig)
       even_num_j = j%2
       if(even_num_j == 0):
