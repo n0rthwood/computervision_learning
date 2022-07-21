@@ -8,7 +8,7 @@ from util import io
 from morph import morph
 from joycv.features import basic
 import config
-print('temp_path: '+config.temp_path)
+#print('temp_path: '+config.temp_path)
 plt.rcParams['figure.figsize'] = (15, 10)
 plt.rcParams['figure.dpi'] = 100
 

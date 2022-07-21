@@ -6,7 +6,7 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 import joycv.config as config
 from joycv.morph import morph
-print('temp_path: '+config.temp_path)
+#print('temp_path: '+config.temp_path)
 # for watershed , check http://bebi103.caltech.edu.s3-website-us-east-1.amazonaws.com/2015/tutorials/r8_watershed_transform.html very good tutorial
 def check_double_skiimage(image,debug=False):
     #image = cv.cvtColor(image, cv.COLOR_RGB2GRAY)

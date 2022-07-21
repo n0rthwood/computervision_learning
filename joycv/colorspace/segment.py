@@ -8,12 +8,12 @@ def threshold_by_colorspace(image, color_cvt_code=(cv2.COLOR_RGB2HSV, cv2.COLOR_
     for color_cvt_code in color_cvt_code:
             lower_color = color_threshold.get_lower_color(color_cvt_code,genre, category)
             upper_color = color_threshold.get_upper_color(color_cvt_code,genre, category)
-            mask = color_threshold_mask_image(image, color_cvt_code, lower_color,upper_color)
+            mask = __apply_in_color_in_range(image, color_cvt_code, lower_color, upper_color)
             masks.append(mask)
     return masks
 
 
-def color_threshold_mask_image(image, colorspace_transform_code, lower_color, upper_color):
+def __apply_in_color_in_range(image, colorspace_transform_code, lower_color, upper_color):
     converted = cv2.cvtColor(image, colorspace_transform_code)
     mask = cv2.inRange(converted, lower_color, upper_color)
     return mask
