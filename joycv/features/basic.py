@@ -1,6 +1,6 @@
 import cv2
 
-from joycv.features.double import check_double, check_double_skiimage
+from features.double import check_double, check_double_skiimage
 
 
 def find_contours(sliced_mask):
