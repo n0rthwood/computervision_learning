@@ -21,17 +21,24 @@ def load_and_process(image_filepath_list, batch_no, save_path):
     start_time = datetime.now()
 
     resize = args.resize
-    image_list_resized_shrink = [cv2.resize(image, (0, 0), fx=resize, fy=resize) for image in image_list]
+    if resize == 1:
+        image_list_resized_shrink = image_list
+    else:
+        image_list_resized_shrink = [cv2.resize(image, (0, 0), fx=resize, fy=resize) for image in image_list]
 
     shrinked_masks = [segment.threshold_by_colorspace(image) for image in image_list_resized_shrink]
     merged_shrinked_masks = [segment.merge_mask_bitwise_or(mask3arr) for mask3arr in shrinked_masks]
 
     if resize == 1:
-        morphed_masks = [morph.close_and_open(mask, 5, 28) for mask in merged_shrinked_masks]
+
+        morphed_shrinked_masks = [morph.close_and_open(mask, 5, 28) for mask in merged_shrinked_masks]
+        morphed_restored_sized_masks = morphed_shrinked_masks
     else:
         morphed_shrinked_masks = [morph.close_and_open_low_resolution(mask, (3,3), 5) for mask in merged_shrinked_masks]
+        morphed_restored_sized_masks = [cv2.resize(mask, (0, 0), fx=1/resize, fy=1/resize) for mask in morphed_shrinked_masks]
 
-    morphed_restored_sized_masks = [cv2.resize(mask, (0, 0), fx=1/resize, fy=1/resize) for mask in morphed_shrinked_masks]
+
+
     contour_rect_and_contour_and_mask_for_each_grid = [basic.for_each_mask_find_countour_rect(mask) for mask in morphed_restored_sized_masks]
     basic_feature_for_each_grid = [basic.extract_basic_feature(contour_rect_and_contour_and_mask_for_each_grid[image_index],image_list[image_index],sliced_training_size=args.training_size,padding=args.padding) for image_index in range(len(image_list))]
     #draw basic info on image
