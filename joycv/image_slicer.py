@@ -25,16 +25,19 @@ def for_each_mask_find_countour_rect(single_restored_sized_mask, columns=6, rows
     contour_for_each_grid = [];
     mask_for_each_grid = [];
 
-    for grid_rect in grid_rects :
+    for grid_rect_index in range(len(grid_rects)) :
         for contour_rec_index in range (len(contours_rects)):
-            if basic.overlap_region_percentage(contours_rects[contour_rec_index],grid_rect)>0.5 and contours_rects[contour_rec_index][2]*contours_rects[contour_rec_index][3]>5000 and  contours_rects[contour_rec_index][2]>70 and contours_rects[contour_rec_index][3]>70:
+            if basic.overlap_region_percentage(contours_rects[contour_rec_index],grid_rects[grid_rect_index])>0.5 and contours_rects[contour_rec_index][2]*contours_rects[contour_rec_index][3]>5000 and  contours_rects[contour_rec_index][2]>70 and contours_rects[contour_rec_index][3]>70:
                 contour_rect_for_each_grid.append(contours_rects[contour_rec_index])
                 contour_for_each_grid.append(contours[contour_rec_index])
                 mask_for_each_grid.append(single_restored_sized_mask[contours_rects[contour_rec_index][1]:contours_rects[contour_rec_index][1]+contours_rects[contour_rec_index][3],contours_rects[contour_rec_index][0]:contours_rects[contour_rec_index][0]+contours_rects[contour_rec_index][2]])
+                break
             else:
-                contour_rect_for_each_grid.append(())
-                contour_for_each_grid.append(())
-                mask_for_each_grid.append(())
+                continue
+        if(len(contour_rect_for_each_grid)-1!=grid_rect_index):
+            contour_rect_for_each_grid.append(())
+            contour_for_each_grid.append(())
+            mask_for_each_grid.append(())
 
 
     return [contour_rect_for_each_grid,contour_for_each_grid,mask_for_each_grid]

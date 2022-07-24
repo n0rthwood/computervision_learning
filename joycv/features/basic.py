@@ -66,12 +66,27 @@ def draw_debug_rect_on_each_object_on_whole_image(contour_rect_for_each_grid,who
             double_count = basic_info[image_index][1]
             exist = basic_info[image_index][0]
             rect =  basic_info[image_index][3]
-            row_index=round(image_index/3)//columns
-            column_index=round(image_index/3)%columns
+            x,y,w,h = rect
+            centerw = x+w/2
+            centereh = y+h/2
+
+            cutx = round(centerw-224/2)
+            cuty = round(centereh-224/2)
+            #if cutx<0:cutx=0
+            #if cuty<0:cuty=0
+            #if cutx+w>whole_image.shape[1]:cutx=whole_image.shape[1]-224
+            #if cuty+h>whole_image.shape[0]:cuty=whole_image.shape[0]-224
+
+            cut_rect = (cutx,cuty,224,224)
+
+            row_index=round(image_index//columns)
+            column_index=round(image_index%columns)
             cv2.rectangle(whole_image, rect, (0, 255, 0), 2)
-            cv2.putText(whole_image, "r: " + str(row_index) + ",c: " + str(column_index) + " e:" + str(exist) , (rect[0], rect[1] + rect[3] + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            cv2.putText(whole_image, "w:" + str(rect[2]) + " h:" + str(rect[3]) + " c:" + str(round(color)), (rect[0],  rect[1] + rect[3]  + 35), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-            cv2.putText(whole_image, "d:" + str(double_count) + ",area: " + str(rect[2] * rect[3]), (rect[0], rect[1] + rect[3]  + 55), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            if double_count<2 : cv2.rectangle(whole_image, cut_rect, (0, 0, 255), 1)
+            cv2.drawContours(whole_image, contour[image_index], -1, (0, 0, 255), 2)
+            cv2.putText(whole_image, "row: " + str(row_index) + ",col: " + str(column_index) + " e:" + str(exist) , (rect[0], rect[1]  -  18), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            cv2.putText(whole_image, "w:" + str(rect[2]) + " h:" + str(rect[3]) + " c:" + str(round(color)), (rect[0],  rect[1] + rect[3]  + 18), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+            cv2.putText(whole_image, "d:" + str(double_count) + ",area: " + str(rect[2] * rect[3]), (rect[0], rect[1] + rect[3]  + 43), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
 
 
 #计算每个扣出物体在网格4*6（或者其他尺寸）中的面积占比。后期需要对比占比是否大于50%来确定是否属于这个网格
