@@ -24,6 +24,56 @@ def find_mask_boundary(contour):
     rect = (left[0], top[1]), (right[0], bottom[1])
     return  rect
 
+def extract_basic_feature(contour_rect_and_contour_for_each_grid,image):
+    basic_info = []
+    contour_rects=contour_rect_and_contour_for_each_grid[0]
+    contours=contour_rect_and_contour_for_each_grid[1]
+    masks = contour_rect_and_contour_for_each_grid[2]
+    for image_index in range(len(contour_rects)):
+        if(len(contour_rects[image_index])>0):
+            contour_rect=contour_rects[image_index]
+            contour=contours[image_index]
+            mask = masks[image_index]
+            double_count = find_double(mask)
+            #unpack y,x,h,w from contour_rect
+            x,y,w,h = contour_rect
+            #slice the image
+            sliced_image = image[y:y+h, x:x+w]
+
+            color = find_color(sliced_image, mask)
+            rect = contour_rect
+            exist = 1;
+            basic_info.append([exist,double_count,color,rect])
+        else:
+            double_count = 0
+            color = 0
+            rect = (0,0,0,0)
+            exist = 0;
+            basic_info.append([exist,double_count,color,rect])
+
+
+    return basic_info
+
+def draw_debug_rect_on_each_object_on_whole_image(contour_rect_for_each_grid,whole_image,basic_info,rows,columns):
+
+    contour_rect=contour_rect_for_each_grid[0]
+    contour=contour_rect_for_each_grid[1]
+    mask = contour_rect_for_each_grid[2]
+    for image_index in range(len(contour_rect)):
+        if(len(contour_rect[image_index])>0):
+
+            color = basic_info[image_index][2]
+            double_count = basic_info[image_index][1]
+            exist = basic_info[image_index][0]
+            rect =  basic_info[image_index][3]
+            row_index=round(image_index/3)//columns
+            column_index=round(image_index/3)%columns
+            cv2.rectangle(whole_image, rect, (0, 255, 0), 2)
+            cv2.putText(whole_image, "r: " + str(row_index) + ",c: " + str(column_index) + " e:" + str(exist) , (rect[0], rect[1] + rect[3] + 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(whole_image, "w:" + str(rect[2]) + " h:" + str(rect[3]) + " c:" + str(round(color)), (rect[0],  rect[1] + rect[3]  + 35), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            cv2.putText(whole_image, "d:" + str(double_count) + ",area: " + str(rect[2] * rect[3]), (rect[0], rect[1] + rect[3]  + 55), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+
 #计算每个扣出物体在网格4*6（或者其他尺寸）中的面积占比。后期需要对比占比是否大于50%来确定是否属于这个网格
 def overlap_region_percentage(mask_rec, grid_rec):
     x1,y1,w1,h1 = mask_rec
@@ -48,7 +98,7 @@ def find_size(contours):
 
 
 def find_color(sliced_image, sliced_mask):
-    YCrCb_mean = cv2.mean(cv2.cvtColor(sliced_image, cv2.COLOR_RGB2YCrCb), sliced_mask)
+    YCrCb_mean = cv2.mean(cv2.cvtColor(sliced_image, cv2.COLOR_RGB2YCrCb), sliced_mask)[0]
     return YCrCb_mean
 
 

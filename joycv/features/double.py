@@ -89,11 +89,8 @@ def check_double(img_mask, debug=False):
         cv.drawContours(surface, contours_wd, ii, (ii + 1), -1)
 
     count = len(contours_wd)
-    fig = None
-    if debug:
-        fig = draw_double_debug(img_mask, count, thresh, opening, sure_bg, dist_transform, sure_fg, unknown_area,
-                                markers)
-    return count, thresh, opening, sure_bg, dist_transform, sure_fg, unknown_area, markers, fig
+
+    return count, thresh, opening, sure_bg, dist_transform, sure_fg, unknown_area, markers
 
 
 def draw_double_debug(img_mask, count, thresh, opening, sure_bg, dist_transform, sure_fg, unknown_area, markers):

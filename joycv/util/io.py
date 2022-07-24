@@ -98,6 +98,7 @@ def save_images_by_images_path(to_be_saved_images, save_path, image_name_list):
     for i in range(len(to_be_saved_images)):
         tail = path_leaf(image_name_list[i])
         save_path_image = save_path + "/" + tail
-        cv2.imwrite(save_path_image, to_be_saved_images[i])
+        whole_image=cv2.cvtColor(to_be_saved_images[i],cv2.COLOR_BGR2RGB)
+        cv2.imwrite(save_path_image, whole_image)
         print("saved to {}".format(save_path_image))
     return None
