@@ -20,7 +20,7 @@ def load_and_process(image_filepath_list, batch_no, save_path):
 
     start_time = datetime.now()
 
-    resize = 1/4
+    resize = args.resize
     image_list_resized_shrink = [cv2.resize(image, (0, 0), fx=resize, fy=resize) for image in image_list]
 
     shrinked_masks = [segment.threshold_by_colorspace(image) for image in image_list_resized_shrink]

@@ -21,7 +21,8 @@ def picture_loading_arg_process(basedir):
                     help="Save mode, options are 3 and 4, 3 is rect around contour, 4 is rect centered on contour but use training size for resnet18 224x224")
     ap.add_argument("-t" ,"--training_size", default=224,type=int,
                     help="training size for resnet18, default is 224")
-
+    ap.add_argument("-re" ,"--resize", default=0.25,type=float,
+                    help="process image with reduced size")
     ap.add_argument("-d", "--debug", default=False,type=bool,help="Debug mode")
     ap.add_argument("-r", "--row", default=4, type=int,help="Row count of the image if not provided default 4")
     ap.add_argument("-co", "--column", default=6,type=int, help="Column count of the image if not provided default 6")
