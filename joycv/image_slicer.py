@@ -1,5 +1,4 @@
 from datetime import datetime
-import os
 import cv2
 import numpy as np
 from colorama import Fore, Style  # color coding print
@@ -11,36 +10,6 @@ from util import io
 from util.args_setup import picture_loading_arg_process
 
 
-def for_each_mask_find_countour_rect(single_restored_sized_mask, columns=6, rows=4):
-    contours = basic.find_contours(single_restored_sized_mask)
-    contours_rects = [cv2.boundingRect(contour) for contour in contours]
-    #extract h and w from overall_mask
-    h, w = single_restored_sized_mask.shape
-    grid_h = h // rows
-    grid_w = w // columns
-    #extract each grid rect  from single_restored_sized_mask
-    grid_rects = [ (grid_w * j, grid_h * i,grid_w, grid_h)  for i in range(rows)  for j in range(columns)]
-
-    contour_rect_for_each_grid = [];
-    contour_for_each_grid = [];
-    mask_for_each_grid = [];
-
-    for grid_rect_index in range(len(grid_rects)) :
-        for contour_rec_index in range (len(contours_rects)):
-            if basic.overlap_region_percentage(contours_rects[contour_rec_index],grid_rects[grid_rect_index])>0.5 and contours_rects[contour_rec_index][2]*contours_rects[contour_rec_index][3]>5000 and  contours_rects[contour_rec_index][2]>70 and contours_rects[contour_rec_index][3]>70:
-                contour_rect_for_each_grid.append(contours_rects[contour_rec_index])
-                contour_for_each_grid.append(contours[contour_rec_index])
-                mask_for_each_grid.append(single_restored_sized_mask[contours_rects[contour_rec_index][1]:contours_rects[contour_rec_index][1]+contours_rects[contour_rec_index][3],contours_rects[contour_rec_index][0]:contours_rects[contour_rec_index][0]+contours_rects[contour_rec_index][2]])
-                break
-            else:
-                continue
-        if(len(contour_rect_for_each_grid)-1!=grid_rect_index):
-            contour_rect_for_each_grid.append(())
-            contour_for_each_grid.append(())
-            mask_for_each_grid.append(())
-
-
-    return [contour_rect_for_each_grid,contour_for_each_grid,mask_for_each_grid]
 
 
 def load_and_process(image_filepath_list, batch_no, save_path):
@@ -63,22 +32,26 @@ def load_and_process(image_filepath_list, batch_no, save_path):
         morphed_shrinked_masks = [morph.close_and_open_low_resolution(mask, (3,3), 5) for mask in merged_shrinked_masks]
 
     morphed_restored_sized_masks = [cv2.resize(mask, (0, 0), fx=1/resize, fy=1/resize) for mask in morphed_shrinked_masks]
-    contour_rect_and_contour_and_mask_for_each_grid = [for_each_mask_find_countour_rect(mask) for mask in morphed_restored_sized_masks]
-    basic_feature_for_each_grid = [basic.extract_basic_feature(contour_rect_and_contour_and_mask_for_each_grid[image_index],image_list[image_index]) for image_index in range(len(image_list))]
+    contour_rect_and_contour_and_mask_for_each_grid = [basic.for_each_mask_find_countour_rect(mask) for mask in morphed_restored_sized_masks]
+    basic_feature_for_each_grid = [basic.extract_basic_feature(contour_rect_and_contour_and_mask_for_each_grid[image_index],image_list[image_index],sliced_training_size=args.training_size,padding=args.padding) for image_index in range(len(image_list))]
     #draw basic info on image
-    for image_index in range(len(image_list)):
-        basic.draw_debug_rect_on_each_object_on_whole_image(contour_rect_and_contour_and_mask_for_each_grid[image_index],image_list[image_index],basic_feature_for_each_grid[image_index],rows=4,columns=6)
+    if args.debug:
+        drawn_image_list = [];
+        for image_index in range(len(image_list)):
+            drawn_image = basic.draw_debug_rect_on_each_object_on_whole_image(contour_rect_and_contour_and_mask_for_each_grid[image_index],image_list[image_index],basic_feature_for_each_grid[image_index],rows=4,columns=6)
+            drawn_image_list.append(drawn_image)
+        io.save_images_by_images_path(drawn_image_list,save_path+"/debug_img/",image_filepath_list)
 
     end_time = datetime.now()
     duration = end_time - start_time
     print("extract time duration: {}{}{}".format(Fore.BLUE, duration, Style.RESET_ALL))
 
 
+    for image_index in range(len(image_list)):
+        image_main_name = image_filepath_list[image_index].split("/")[-1]
+        io.sliced_and_save_image(image_list[image_index],basic_feature_for_each_grid[image_index],save_path+"/sliced_image/",image_main_name,save_mode=args.save_mode)
 
-    #morphed_images = [cv2.cvtColor( cv2.bitwise_and(image,image,mask =morphed_mask ),cv2.COLOR_BGR2RGB) for image,morphed_mask in zip(image_list,restored_sized_mask)]
-    io.save_images_by_images_path(image_list,save_path+"/marked_img/",image_filepath_list)
-    #io.save_images_by_images_path(morphed_restored_sized_masks,args.output+"/masks_rec/",image_filepath_list)
-    return morphed_restored_sized_masks
+    return duration.microseconds
 
 
 args = picture_loading_arg_process(__file__)
@@ -99,7 +72,16 @@ if len(image_filepath_list) > 0:
 
     processing_images = np.array(divisible_images).reshape(-1, batch_size)
 
-    morphed_images = load_and_process(remainder_images, -1, args.output)
-
+    durations = []
+    duration = load_and_process(remainder_images, -1, args.output)
+    durations.append(duration)
     for batch_no in range(0, len(processing_images) - 1):
-        load_and_process(processing_images[batch_no], batch_no, args.output)
+        duration= load_and_process(processing_images[batch_no], batch_no, args.output)
+        durations.append(duration)
+
+    total_duration = round(sum(durations)/1000)
+    total_pictures = len(image_filepath_list)
+    avg_duration = round(total_duration / total_pictures)
+    print("avg duration per picture {}{}{}ms,total picture{}{}{} of total duration{}{}{}ms".format(
+        Fore.BLUE,avg_duration, Style.RESET_ALL, Fore.BLUE, total_pictures, Style.RESET_ALL, Fore.BLUE, total_duration, Style.RESET_ALL))
+

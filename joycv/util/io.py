@@ -92,7 +92,33 @@ def slice_by_grid_batch(image_list, mask_list, slice_grid_row_column=[4, 6]):
         mask_list_sliced.append(sliced_masks)
     return image_list_sliced, mask_list_sliced
 
+def sliced_and_save_image(image,basic_info,save_path,main_image_name,save_mode=4):
 
+    save_path=save_path+"/"+"sm"+str(save_mode)+"/"
+    Path(save_path).mkdir(parents=True, exist_ok=True);
+    main_image_name=main_image_name.split(".")[0]
+    for i in range(len(basic_info)):
+        if len(basic_info[i])>0:
+            save_rect=basic_info[i][save_mode]
+            e=basic_info[i][0]
+            d=basic_info[i][1]
+            c=basic_info[i][2]
+            w=basic_info[i][3][2]
+            h=basic_info[i][3][3]
+            save_path_image = save_path + "/" + main_image_name +\
+                              "_i" + str(i)  + \
+                              "_e" + str(e)  + \
+                              "_d" + str(d)  + \
+                              "_c" + str(c)  + \
+                              "_w" + str(w)  + \
+                              "_h" + str(h)  + \
+                              ".png"
+
+
+
+            sliced_image = image[save_rect[1]:save_rect[1]+save_rect[3], save_rect[0]:save_rect[0]+save_rect[2]]
+            cv2.imwrite(save_path_image, cv2.cvtColor(sliced_image,cv2.COLOR_BGR2RGB) )
+            #print("saved to {}".format(save_path_image))
 def save_images_by_images_path(to_be_saved_images, save_path, image_name_list):
     Path(save_path).mkdir(parents=True, exist_ok=True);
     for i in range(len(to_be_saved_images)):
@@ -100,5 +126,5 @@ def save_images_by_images_path(to_be_saved_images, save_path, image_name_list):
         save_path_image = save_path + "/" + tail
         whole_image=cv2.cvtColor(to_be_saved_images[i],cv2.COLOR_BGR2RGB)
         cv2.imwrite(save_path_image, whole_image)
-        print("saved to {}".format(save_path_image))
+        #print("saved to {}".format(save_path_image))
     return None

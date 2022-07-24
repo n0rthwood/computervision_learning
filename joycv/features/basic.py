@@ -1,6 +1,6 @@
 import cv2
 
-from features.double import check_double, check_double_skiimage
+from .double import check_double, check_double_skiimage
 
 
 def find_contours(sliced_mask):
@@ -24,8 +24,9 @@ def find_mask_boundary(contour):
     rect = (left[0], top[1]), (right[0], bottom[1])
     return  rect
 
-def extract_basic_feature(contour_rect_and_contour_for_each_grid,image):
+def extract_basic_feature(contour_rect_and_contour_for_each_grid,image,sliced_training_size=224,padding=3):
     basic_info = []
+
     contour_rects=contour_rect_and_contour_for_each_grid[0]
     contours=contour_rect_and_contour_for_each_grid[1]
     masks = contour_rect_and_contour_for_each_grid[2]
@@ -37,47 +38,58 @@ def extract_basic_feature(contour_rect_and_contour_for_each_grid,image):
             double_count = find_double(mask)
             #unpack y,x,h,w from contour_rect
             x,y,w,h = contour_rect
+
+            centerw = x+w/2
+            centereh = y+h/2
+
+            cutx = round(centerw-sliced_training_size/2)
+            cuty = round(centereh-sliced_training_size/2)
+            if cutx<0:cutx=0
+            if cuty<0:cuty=0
+            if cutx+w>image.shape[1]:cutx=image.shape[1]-sliced_training_size
+            if cuty+h>image.shape[0]:cuty=image.shape[0]-sliced_training_size
+
+            cut_rect = (cutx,cuty,224,224)
             #slice the image
             sliced_image = image[y:y+h, x:x+w]
 
-            color = find_color(sliced_image, mask)
+            color = round(find_color(sliced_image, mask))
+
+            #unpack the rect to x,y,w,h
+            x,y,w,h = contour_rect
+            x=x-padding
+            y=y-padding
+            w=w+padding*2
+            h=h+padding*2
+            if x<0:x=0
+            if y<0:y=0
+            if x+w>image.shape[1]:w=image.shape[1]-x
+            if y+h>image.shape[0]:h=image.shape[0]-y
+            save_rect=(x,y,w,h)
             rect = contour_rect
             exist = 1;
-            basic_info.append([exist,double_count,color,rect])
+            basic_info.append([exist,double_count,color,rect,cut_rect])
+
         else:
-            double_count = 0
-            color = 0
-            rect = (0,0,0,0)
-            exist = 0;
-            basic_info.append([exist,double_count,color,rect])
+
+            basic_info.append([])
 
 
     return basic_info
 
-def draw_debug_rect_on_each_object_on_whole_image(contour_rect_for_each_grid,whole_image,basic_info,rows,columns):
-
+def draw_debug_rect_on_each_object_on_whole_image(contour_rect_for_each_grid,orig_image,basic_info,rows,columns):
+    whole_image=orig_image.copy()
     contour_rect=contour_rect_for_each_grid[0]
     contour=contour_rect_for_each_grid[1]
     mask = contour_rect_for_each_grid[2]
-    for image_index in range(len(contour_rect)):
-        if(len(contour_rect[image_index])>0):
+    for image_index in range(len(basic_info)):
+        if(len(basic_info[image_index])>0):
 
             color = basic_info[image_index][2]
             double_count = basic_info[image_index][1]
             exist = basic_info[image_index][0]
             rect =  basic_info[image_index][3]
-            x,y,w,h = rect
-            centerw = x+w/2
-            centereh = y+h/2
-
-            cutx = round(centerw-224/2)
-            cuty = round(centereh-224/2)
-            #if cutx<0:cutx=0
-            #if cuty<0:cuty=0
-            #if cutx+w>whole_image.shape[1]:cutx=whole_image.shape[1]-224
-            #if cuty+h>whole_image.shape[0]:cuty=whole_image.shape[0]-224
-
-            cut_rect = (cutx,cuty,224,224)
+            cut_rect = basic_info[image_index][4]
 
             row_index=round(image_index//columns)
             column_index=round(image_index%columns)
@@ -87,7 +99,15 @@ def draw_debug_rect_on_each_object_on_whole_image(contour_rect_for_each_grid,who
             cv2.putText(whole_image, "row: " + str(row_index) + ",col: " + str(column_index) + " e:" + str(exist) , (rect[0], rect[1]  -  18), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
             cv2.putText(whole_image, "w:" + str(rect[2]) + " h:" + str(rect[3]) + " c:" + str(round(color)), (rect[0],  rect[1] + rect[3]  + 18), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
             cv2.putText(whole_image, "d:" + str(double_count) + ",area: " + str(rect[2] * rect[3]), (rect[0], rect[1] + rect[3]  + 43), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+    return whole_image
+def slice_image_according_to_rect(image, rects):
 
+    sliced_images = []
+    for rect in rects:
+        x, y, w, h = rect
+        sliced_image = image[y:y+h, x:x+w]
+        sliced_images.append(sliced_image)
+    return sliced_images
 
 #计算每个扣出物体在网格4*6（或者其他尺寸）中的面积占比。后期需要对比占比是否大于50%来确定是否属于这个网格
 def overlap_region_percentage(mask_rec, grid_rec):
@@ -148,3 +168,34 @@ def draw_debug_info(sliced_img, contour_max, left, right, top, bottom, width, he
 def extract_img(image, mask):
     img_mask = cv2.bitwise_and(image, image, mask=mask)
     return img_mask
+
+def for_each_mask_find_countour_rect(single_restored_sized_mask, columns=6, rows=4):
+    contours = find_contours(single_restored_sized_mask)
+    contours_rects = [cv2.boundingRect(contour) for contour in contours]
+    #extract h and w from overall_mask
+    h, w = single_restored_sized_mask.shape
+    grid_h = h // rows
+    grid_w = w // columns
+    #extract each grid rect  from single_restored_sized_mask
+    grid_rects = [ (grid_w * j, grid_h * i,grid_w, grid_h)  for i in range(rows)  for j in range(columns)]
+
+    contour_rect_for_each_grid = [];
+    contour_for_each_grid = [];
+    mask_for_each_grid = [];
+
+    for grid_rect_index in range(len(grid_rects)) :
+        for contour_rec_index in range (len(contours_rects)):
+            if overlap_region_percentage(contours_rects[contour_rec_index],grid_rects[grid_rect_index])>0.5 and contours_rects[contour_rec_index][2]*contours_rects[contour_rec_index][3]>5000 and  contours_rects[contour_rec_index][2]>70 and contours_rects[contour_rec_index][3]>70:
+                contour_rect_for_each_grid.append(contours_rects[contour_rec_index])
+                contour_for_each_grid.append(contours[contour_rec_index])
+                mask_for_each_grid.append(single_restored_sized_mask[contours_rects[contour_rec_index][1]:contours_rects[contour_rec_index][1]+contours_rects[contour_rec_index][3],contours_rects[contour_rec_index][0]:contours_rects[contour_rec_index][0]+contours_rects[contour_rec_index][2]])
+                break
+            else:
+                continue
+        if(len(contour_rect_for_each_grid)-1!=grid_rect_index):
+            contour_rect_for_each_grid.append(())
+            contour_for_each_grid.append(())
+            mask_for_each_grid.append(())
+
+
+    return [contour_rect_for_each_grid,contour_for_each_grid,mask_for_each_grid]
