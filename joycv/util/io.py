@@ -119,12 +119,16 @@ def sliced_and_save_image(image,basic_info,save_path,main_image_name,save_mode=4
             sliced_image = image[save_rect[1]:save_rect[1]+save_rect[3], save_rect[0]:save_rect[0]+save_rect[2]]
             cv2.imwrite(save_path_image, cv2.cvtColor(sliced_image,cv2.COLOR_BGR2RGB) )
             #print("saved to {}".format(save_path_image))
-def save_images_by_images_path(to_be_saved_images, save_path, image_name_list):
+def save_images_by_images_path(to_be_saved_images, save_path, image_name_list,cvtColor=True):
     Path(save_path).mkdir(parents=True, exist_ok=True);
     for i in range(len(to_be_saved_images)):
         tail = path_leaf(image_name_list[i])
         save_path_image = save_path + "/" + tail
-        whole_image=cv2.cvtColor(to_be_saved_images[i],cv2.COLOR_BGR2RGB)
+        if cvtColor:
+            whole_image=cv2.cvtColor(to_be_saved_images[i],cv2.COLOR_BGR2RGB)
+        else:
+            whole_image=to_be_saved_images[i]
+
         cv2.imwrite(save_path_image, whole_image)
         #print("saved to {}".format(save_path_image))
     return None

@@ -34,23 +34,29 @@ def load_and_process(image_filepath_list, batch_no, save_path):
         morphed_shrinked_masks = [morph.close_and_open(mask, 5, 28) for mask in merged_shrinked_masks]
         morphed_restored_sized_masks = morphed_shrinked_masks
     else:
-        morphed_shrinked_masks = [morph.close_and_open_low_resolution(mask, (3,3), 5) for mask in merged_shrinked_masks]
+        morphed_shrinked_masks = [morph.close_and_open_low_resolution(mask, (3,3), round(28*resize)) for mask in merged_shrinked_masks]
         morphed_restored_sized_masks = [cv2.resize(mask, (0, 0), fx=1/resize, fy=1/resize) for mask in morphed_shrinked_masks]
 
 
 
-    contour_rect_and_contour_and_mask_for_each_grid = [basic.for_each_mask_find_countour_rect(mask) for mask in morphed_restored_sized_masks]
+    contour_rect_and_contour_and_mask_for_each_grid = [basic.for_each_mask_find_countour_rect(mask,columns=args.column,rows=args.row) for mask in morphed_restored_sized_masks]
     basic_feature_for_each_grid = [basic.extract_basic_feature(contour_rect_and_contour_and_mask_for_each_grid[image_index],image_list[image_index],sliced_training_size=args.training_size,padding=args.padding) for image_index in range(len(image_list))]
+
+
+    end_time = datetime.now()
+    duration = end_time - start_time
     #draw basic info on image
     if args.debug:
         drawn_image_list = [];
         for image_index in range(len(image_list)):
             drawn_image = basic.draw_debug_rect_on_each_object_on_whole_image(contour_rect_and_contour_and_mask_for_each_grid[image_index],image_list[image_index],basic_feature_for_each_grid[image_index],rows=4,columns=6)
             drawn_image_list.append(drawn_image)
-        io.save_images_by_images_path(drawn_image_list,save_path+"/debug_img/",image_filepath_list)
+        io.save_images_by_images_path(drawn_image_list,save_path+"/debug_img/",image_filepath_list,cvtColor=True)
+        io.save_images_by_images_path(image_list,save_path+"/debug_ori_img/",image_filepath_list,cvtColor=True)
+        io.save_images_by_images_path(image_list_resized_shrink,save_path+"/debug_img_resize_"+str(resize)+"/",image_filepath_list,cvtColor=True)
+        io.save_images_by_images_path(morphed_shrinked_masks,save_path+"/debug_img_mask/",image_filepath_list,cvtColor=False)
 
-    end_time = datetime.now()
-    duration = end_time - start_time
+
     print("extract time duration: {}{}{}".format(Fore.BLUE, duration, Style.RESET_ALL))
 
 
