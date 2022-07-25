@@ -5,3 +5,6 @@ codegen
 /colorspace/venv/
 /matlab/tmp/
 __pycache__
+exe/build
+exe/dist
+exe/*.spec
