@@ -65,10 +65,10 @@ def extract_basic_feature(contour_rect_and_contour_for_each_grid,image,sliced_tr
             if y<0:y=0
             if x+w>image.shape[1]:w=image.shape[1]-x
             if y+h>image.shape[0]:h=image.shape[0]-y
-            save_rect=(x,y,w,h)
+            padding_rect=(x,y,w,h)
             rect = contour_rect
             exist = 1;
-            basic_info.append([exist,double_count,color,rect,cut_rect])
+            basic_info.append([exist,double_count,color,rect,cut_rect,padding_rect])
 
         else:
 
@@ -90,10 +90,12 @@ def draw_debug_rect_on_each_object_on_whole_image(contour_rect_for_each_grid,ori
             exist = basic_info[image_index][0]
             rect =  basic_info[image_index][3]
             cut_rect = basic_info[image_index][4]
+            save_rect = basic_info[image_index][5]
 
             row_index=round(image_index//columns)
             column_index=round(image_index%columns)
             cv2.rectangle(whole_image, rect, (0, 255, 0), 2)
+            cv2.rectangle(whole_image, save_rect, (255, 0, 0), 2)
             if double_count<2 : cv2.rectangle(whole_image, cut_rect, (0, 0, 255), 1)
             cv2.drawContours(whole_image, contour[image_index], -1, (0, 0, 255), 2)
             cv2.putText(whole_image, "row: " + str(row_index) + ",col: " + str(column_index) + " e:" + str(exist) , (rect[0], rect[1]  -  18), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)

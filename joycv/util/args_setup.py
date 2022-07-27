@@ -18,7 +18,7 @@ def picture_loading_arg_process(basedir):
     ap.add_argument("-p", "--padding", default=3,type=int,
                     help="when save mode=3 (rect around contour),padding will be used to pad the image")
     ap.add_argument("-s", "--save_mode", default=4,type=int,
-                    help="Save mode, options are 3 and 4, 3 is rect around contour, 4 is rect centered on contour but use training size for resnet18 224x224")
+                    help="Save mode, options are 3 and 4, 3 is rect around contour, 4 is rect centered on contour but use training size for resnet18 224x224， 5 is controu+padding fit into training size if needed resize to shink but keep scale with white background ")
     ap.add_argument("-t" ,"--training_size", default=224,type=int,
                     help="training size for resnet18, default is 224")
     ap.add_argument("-re" ,"--resize", default=0.25,type=float,

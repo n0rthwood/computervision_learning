@@ -91,8 +91,37 @@ def slice_by_grid_batch(image_list, mask_list, slice_grid_row_column=[4, 6]):
         image_list_sliced.append(sliced_images)
         mask_list_sliced.append(sliced_masks)
     return image_list_sliced, mask_list_sliced
+def image_resize(image, width = None, height = None, inter = cv2.INTER_AREA):
+    # initialize the dimensions of the image to be resized and
+    # grab the image size
+    dim = None
+    (h, w) = image.shape[:2]
 
-def sliced_and_save_image(image,basic_info,save_path,main_image_name,save_mode=4):
+    # if both the width and height are None, then return the
+    # original image
+    if width is None and height is None:
+        return image
+
+    # check to see if the width is None
+    if width is None:
+        # calculate the ratio of the height and construct the
+        # dimensions
+        r = height / float(h)
+        dim = (int(w * r), height)
+
+    # otherwise, the height is None
+    else:
+        # calculate the ratio of the width and construct the
+        # dimensions
+        r = width / float(w)
+        dim = (width, int(h * r))
+
+    # resize the image
+    resized = cv2.resize(image, dim, interpolation = inter)
+
+    # return the resized image
+    return resized
+def sliced_and_save_image(image,basic_info,save_path,main_image_name,save_mode=4,training_size=244):
 
     save_path=save_path+"/"+"sm"+str(save_mode)+"/"
     Path(save_path).mkdir(parents=True, exist_ok=True);
@@ -112,13 +141,32 @@ def sliced_and_save_image(image,basic_info,save_path,main_image_name,save_mode=4
                               "_c" + str(c)  + \
                               "_w" + str(w)  + \
                               "_h" + str(h)  + \
+                              "_s" + str(save_mode)  + \
                               ".png"
 
 
 
             sliced_image = image[save_rect[1]:save_rect[1]+save_rect[3], save_rect[0]:save_rect[0]+save_rect[2]]
+            if save_mode  == 3 or save_mode == 5:
+                import numpy as np
+                backimg = np.zeros([training_size,training_size,3],dtype=np.uint8)
+                backimg.fill(255) # or img[:] = 255
+                #if sliced_image size is bigger than backimg, resize it to fit backimg size proportionally
+                if sliced_image.shape[0]>backimg.shape[0] :
+                    sliced_image = image_resize(sliced_image,height=training_size)
+                if sliced_image.shape[1]>backimg.shape[1] :
+                    sliced_image= image_resize(sliced_image,width=training_size)
+
+
+                #centre the sliced_image on the backimg
+                x_offset = int((training_size - sliced_image.shape[1]) / 2)
+                y_offset = int((training_size - sliced_image.shape[0]) / 2)
+                backimg[y_offset:y_offset + sliced_image.shape[0], x_offset:x_offset + sliced_image.shape[1]] = sliced_image
+                sliced_image = backimg
+
             cv2.imwrite(save_path_image, cv2.cvtColor(sliced_image,cv2.COLOR_BGR2RGB) )
             #print("saved to {}".format(save_path_image))
+
 def save_images_by_images_path(to_be_saved_images, save_path, image_name_list,cvtColor=True):
     Path(save_path).mkdir(parents=True, exist_ok=True);
     for i in range(len(to_be_saved_images)):

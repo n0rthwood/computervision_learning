@@ -62,7 +62,7 @@ def load_and_process(image_filepath_list, batch_no, save_path):
 
     for image_index in range(len(image_list)):
         image_main_name = image_filepath_list[image_index].split("/")[-1]
-        io.sliced_and_save_image(image_list[image_index],basic_feature_for_each_grid[image_index],save_path+"/sliced_image/",image_main_name,save_mode=args.save_mode)
+        io.sliced_and_save_image(image_list[image_index],basic_feature_for_each_grid[image_index],save_path+"/sliced_image/",image_main_name,save_mode=args.save_mode,training_size=args.training_size)
 
     return duration.microseconds
 
