@@ -17,7 +17,7 @@ def path_leaf(path):
 
 
 def load_image_names_from_folder(image_folder="./", filename_filter="*"):
-    image_filepath_list = glob.glob(image_folder + "/" + filename_filter + '*')
+    image_filepath_list = glob.glob(image_folder + "/" + filename_filter)
     print(("{}{}{} files found from{}{}{} wtih filter {}'{}'{}").format(Fore.GREEN, len(image_filepath_list),
                                                                         Style.RESET_ALL,
                                                                         Fore.GREEN, image_folder, Style.RESET_ALL,
@@ -141,8 +141,8 @@ def sliced_and_save_image(image,basic_info,save_path,main_image_name,save_mode=4
                               "_c" + str(c)  + \
                               "_w" + str(w)  + \
                               "_h" + str(h)  + \
-                              "_s" + str(save_mode)  + \
                               ".png"
+            #"_s" + str(save_mode)  + \
 
 
 
